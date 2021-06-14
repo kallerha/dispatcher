@@ -1,0 +1,25 @@
+{
+  "name": "fluence-prototype/dispatcher",
+  "type": "library",
+  "description": "",
+  "keywords": [],
+  "homepage": "https://github.com/youngunite/",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Kasper Hansen",
+      "email": "kasper@bookstudenterkorsel.dk"
+    }
+  ],
+  "require": {
+    "php": ">=8.0.0",
+    "fluence-prototype/http": "^1.0",
+    "fluence-prototype/router": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "FluencePrototype\\Dispatcher\\": "src/"
+    }
+  },
+  "minimum-stability": "stable"
+}
