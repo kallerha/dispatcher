@@ -6,12 +6,13 @@ namespace FluencePrototype\Dispatcher;
 
 use FluencePrototype\Http\Messages\iRequest;
 use FluencePrototype\Http\Messages\iResponse;
+use FluencePrototype\Http\Messages\Request\QueryParametersService;
+use FluencePrototype\Http\Messages\Request\FormService;
 use FluencePrototype\Http\Messages\MethodNotAllowedException;
 use FluencePrototype\Http\Messages\NotFoundException;
 use FluencePrototype\Http\Methods\iGet;
 use FluencePrototype\Http\Methods\iPost;
 use FluencePrototype\Http\PathService;
-use FluencePrototype\Http\QueryParametersService;
 use FluencePrototype\Router\iRouteInformation;
 use ReflectionClass;
 use ReflectionException;
@@ -49,6 +50,7 @@ class Dispatcher implements iDispatcher
                 $reflectionDependencyInjectionClass = new ReflectionClass(objectOrClass: $dependencyInjectionClassName);
 
                 switch ($dependencyInjectionClassName) {
+                    case FormService::class:
                     case PathService::class:
                         $dependencies[] = $reflectionDependencyInjectionClass->newInstance();
 
