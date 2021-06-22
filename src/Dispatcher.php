@@ -14,6 +14,8 @@ use FluencePrototype\Http\Methods\iGet;
 use FluencePrototype\Http\Methods\iPost;
 use FluencePrototype\Http\PathService;
 use FluencePrototype\Router\iRouteInformation;
+use FluencePrototype\Security\PasswordService;
+use FluencePrototype\Session\SessionService;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
@@ -53,7 +55,9 @@ class Dispatcher implements iDispatcher
 
                 switch ($dependencyInjectionClassName) {
                     case FormService::class:
+                    case PasswordService::class:
                     case PathService::class:
+                    case SessionService::class:
                         $dependencies[] = $reflectionDependencyInjectionClass->newInstance();
 
                         break;
