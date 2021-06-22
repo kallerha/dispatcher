@@ -6,16 +6,18 @@ namespace FluencePrototype\Dispatcher;
 
 use FluencePrototype\Http\Messages\iRequest;
 use FluencePrototype\Http\Messages\iResponse;
-use FluencePrototype\Http\Messages\Request\QueryParametersService;
-use FluencePrototype\Http\Messages\Request\FormService;
 use FluencePrototype\Http\Messages\MethodNotAllowedException;
 use FluencePrototype\Http\Messages\NotFoundException;
+use FluencePrototype\Http\Messages\Request\FormService;
+use FluencePrototype\Http\Messages\Request\QueryParametersService;
 use FluencePrototype\Http\Methods\iGet;
 use FluencePrototype\Http\Methods\iPost;
 use FluencePrototype\Http\PathService;
 use FluencePrototype\Router\iRouteInformation;
+use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionMethod;
 
 /**
  * Class Dispatcher
@@ -74,6 +76,17 @@ class Dispatcher implements iDispatcher
         return null;
     }
 
+
+    /**
+     * @param ReflectionAttribute[] $attributes
+     */
+    private function resolveAttributes(array $attributes): void
+    {
+        foreach ($attributes as $attribute) {
+            $attribute->newInstance();
+        }
+    }
+
     /**
      * @inheritDoc
      * @throws ReflectionException|InvalidDependencyException
@@ -93,10 +106,14 @@ class Dispatcher implements iDispatcher
         }
 
         if ($this->request->getMethod() === 'get' && $controller instanceof iGet) {
+            $this->resolveAttributes((new ReflectionMethod($controller->get()))->getAttributes());
+
             return $controller->get();
         }
 
         if ($this->request->getMethod() === 'post' && $controller instanceof iPost) {
+            $this->resolveAttributes((new ReflectionMethod($controller->post()))->getAttributes());
+
             return $controller->post();
         }
 
