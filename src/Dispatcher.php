@@ -112,7 +112,7 @@ class Dispatcher implements iDispatcher
         }
 
         if ($this->request->getMethod() === 'post' && $controller instanceof iPost) {
-            $this->resolveAttributes(attributes: (new ReflectionMethod(objectOrMethod: $this->routeInformation->getResource(), method: 'get'))->getAttributes());
+            $this->resolveAttributes(attributes: (new ReflectionMethod(objectOrMethod: $this->routeInformation->getResource(), method: 'post'))->getAttributes());
 
             return $controller->post();
         }
