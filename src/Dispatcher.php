@@ -16,6 +16,7 @@ use FluencePrototype\Http\PathService;
 use FluencePrototype\Router\iRouteInformation;
 use FluencePrototype\Security\PasswordService;
 use FluencePrototype\Session\SessionService;
+use FluencePrototype\Validation\ValidationService;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
@@ -58,6 +59,7 @@ class Dispatcher implements iDispatcher
                     case PasswordService::class:
                     case PathService::class:
                     case SessionService::class:
+                    case ValidationService::class:
                         $dependencies[] = $reflectionDependencyInjectionClass->newInstance();
 
                         break;
