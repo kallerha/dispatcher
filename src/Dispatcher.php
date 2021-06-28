@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FluencePrototype\Dispatcher;
 
-use FluencePrototype\Auth\AuthService;
+use FluencePrototype\Auth\AuthenticationService;
 use FluencePrototype\Http\Messages\iRequest;
 use FluencePrototype\Http\Messages\iResponse;
 use FluencePrototype\Http\Messages\MethodNotAllowedException;
@@ -56,7 +56,7 @@ class Dispatcher implements iDispatcher
                 $reflectionDependencyInjectionClass = new ReflectionClass(objectOrClass: $dependencyInjectionClassName);
 
                 switch ($dependencyInjectionClassName) {
-                    case AuthService::class:
+                    case AuthenticationService::class:
                     case FormService::class:
                     case PasswordService::class:
                     case PathService::class:
