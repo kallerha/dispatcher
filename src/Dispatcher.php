@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace FluencePrototype\Dispatcher;
 
+use FluencePrototype\Auth\AcceptRoles;
 use FluencePrototype\Auth\AuthenticationService;
 use FluencePrototype\Http\Messages\iRequest;
 use FluencePrototype\Http\Messages\iResponse;
@@ -102,6 +103,11 @@ class Dispatcher implements iDispatcher
     public function dispatch(): iResponse
     {
         $reflectionControllerClass = new ReflectionClass(objectOrClass: $this->routeInformation->getResource());
+
+        if ($attributes = $reflectionControllerClass->getAttributes(name: AcceptRoles::class)) {
+            $acceptRolesAttribute = array_pop(array: $attributes);
+            $acceptRolesAttribute->newInstance();
+        }
 
         if (!$controller = $this->resolveDependencies(reflectionControllerClass: $reflectionControllerClass)) {
             $controller = $reflectionControllerClass->newInstance();
