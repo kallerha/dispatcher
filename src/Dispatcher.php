@@ -6,6 +6,7 @@ namespace FluencePrototype\Dispatcher;
 
 use FluencePrototype\Auth\AcceptRoles;
 use FluencePrototype\Auth\AuthenticationService;
+use FluencePrototype\Broadcast\BroadcastService;
 use FluencePrototype\Http\Messages\iRequest;
 use FluencePrototype\Http\Messages\iResponse;
 use FluencePrototype\Http\Messages\MethodNotAllowedException;
@@ -58,6 +59,7 @@ class Dispatcher implements iDispatcher
 
                 switch ($dependencyInjectionClassName) {
                     case AuthenticationService::class:
+                    case BroadcastService::class:
                     case FormService::class:
                     case PasswordService::class:
                     case PathService::class:

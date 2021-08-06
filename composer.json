@@ -13,6 +13,7 @@
   ],
   "require": {
     "php": ">=8.0.0",
+    "fluence-prototype/broadcast": "^1.0",
     "fluence-prototype/http": "^1.0",
     "fluence-prototype/router": "^1.0"
   },
