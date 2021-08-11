@@ -116,8 +116,8 @@ class Dispatcher implements iDispatcher
         }
 
         if ($controller instanceof iResolve) {
-            if (!$controller->resolve()) {
-                throw new NotFoundException();
+            if ($controller->resolve() !== null) {
+                return $controller->resolve();
             }
         }
 
