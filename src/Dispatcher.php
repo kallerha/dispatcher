@@ -112,6 +112,11 @@ class Dispatcher implements iDispatcher
     {
         $reflectionControllerClass = new ReflectionClass(objectOrClass: $this->routeInformation->getResource());
 
+        if ($attributes = $reflectionControllerClass->getAttributes(name: AcceptRoles::class)) {
+            $acceptRolesAttribute = array_pop(array: $attributes);
+            $acceptRolesAttribute->newInstance();
+        }
+
         if (!$controller = $this->resolveDependencies(reflectionControllerClass: $reflectionControllerClass)) {
             $controller = $reflectionControllerClass->newInstance();
         }
