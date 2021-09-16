@@ -76,8 +76,6 @@ class Dispatcher implements iDispatcher
                         $dependencies[] = $reflectionDependencyInjectionClass->newInstance($this->request->getQueryParameters());
 
                         break;
-                    default:
-                        throw new InvalidDependencyException();
                 }
             }
 
