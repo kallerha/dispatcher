@@ -81,6 +81,14 @@ class Dispatcher implements iDispatcher
                 }
             }
 
+            if ($attributes = $reflectionControllerClass->getAttributes(name: Resolver::class)) {
+                foreach ($attributes as $attribute) {
+                    /** @var Resolver $resolver */
+                    $resolver = $attribute->newInstance();
+                    $dependencies = array_merge($dependencies, $resolver->getResolver()->getDependencies());
+                }
+            }
+
             return $reflectionControllerClass->newInstanceArgs(args: $dependencies);
         }
 
@@ -105,11 +113,6 @@ class Dispatcher implements iDispatcher
     public function dispatch(): iResponse
     {
         $reflectionControllerClass = new ReflectionClass(objectOrClass: $this->routeInformation->getResource());
-
-        if ($attributes = $reflectionControllerClass->getAttributes(name: AcceptRoles::class)) {
-            $acceptRolesAttribute = array_pop(array: $attributes);
-            $acceptRolesAttribute->newInstance();
-        }
 
         if (!$controller = $this->resolveDependencies(reflectionControllerClass: $reflectionControllerClass)) {
             $controller = $reflectionControllerClass->newInstance();
