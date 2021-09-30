@@ -15,6 +15,9 @@ use FluencePrototype\Http\Messages\Request\FormService;
 use FluencePrototype\Http\Messages\Request\QueryParametersService;
 use FluencePrototype\Http\Methods\iGet;
 use FluencePrototype\Http\Methods\iPost;
+use FluencePrototype\Http\Methods\iPut;
+use FluencePrototype\Http\Methods\iPatch;
+use FluencePrototype\Http\Methods\iDelete;
 use FluencePrototype\Http\PathService;
 use FluencePrototype\Router\iRouteInformation;
 use FluencePrototype\Security\PasswordService;
@@ -137,6 +140,24 @@ class Dispatcher implements iDispatcher
             $this->resolveAttributes(attributes: (new ReflectionMethod(objectOrMethod: $this->routeInformation->getResource(), method: 'post'))->getAttributes());
 
             return $controller->post();
+        }
+
+        if ($this->request->getMethod() === 'put' && $controller instanceof iPut) {
+            $this->resolveAttributes(attributes: (new ReflectionMethod(objectOrMethod: $this->routeInformation->getResource(), method: 'put'))->getAttributes());
+
+            return $controller->put();
+        }
+
+        if ($this->request->getMethod() === 'patch' && $controller instanceof iPatch) {
+            $this->resolveAttributes(attributes: (new ReflectionMethod(objectOrMethod: $this->routeInformation->getResource(), method: 'patch'))->getAttributes());
+
+            return $controller->patch();
+        }
+
+        if ($this->request->getMethod() === 'delete' && $controller instanceof iDelete) {
+            $this->resolveAttributes(attributes: (new ReflectionMethod(objectOrMethod: $this->routeInformation->getResource(), method: 'delete'))->getAttributes());
+
+            return $controller->delete();
         }
 
         throw new MethodNotAllowedException();
