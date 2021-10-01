@@ -13,11 +13,12 @@ use FluencePrototype\Http\Messages\MethodNotAllowedException;
 use FluencePrototype\Http\Messages\NotFoundException;
 use FluencePrototype\Http\Messages\Request\FormService;
 use FluencePrototype\Http\Messages\Request\QueryParametersService;
+use FluencePrototype\Http\Messages\Request\RestDataService;
+use FluencePrototype\Http\Methods\iDelete;
 use FluencePrototype\Http\Methods\iGet;
+use FluencePrototype\Http\Methods\iPatch;
 use FluencePrototype\Http\Methods\iPost;
 use FluencePrototype\Http\Methods\iPut;
-use FluencePrototype\Http\Methods\iPatch;
-use FluencePrototype\Http\Methods\iDelete;
 use FluencePrototype\Http\PathService;
 use FluencePrototype\Router\iRouteInformation;
 use FluencePrototype\Security\PasswordService;
@@ -66,6 +67,7 @@ class Dispatcher implements iDispatcher
                     case FormService::class:
                     case PasswordService::class:
                     case PathService::class:
+                    case RestDataService::class:
                     case SessionService::class:
                     case ValidationService::class:
                         $dependencies[] = $reflectionDependencyInjectionClass->newInstance();
