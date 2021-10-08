@@ -29,7 +29,7 @@ class ParametersService
         for ($i = 0; $i < count(value: $routeCandidatePathArray); $i++) {
             $routeCandidatePathItem = $routeCandidatePathArray[$i];
 
-            if (substr(string: $routeCandidatePathItem, offset: 0, length: 1) === ':') {
+            if (str_starts_with(haystack: $routeCandidatePathItem, needle: ':')) {
                 $this->parameters[substr($routeCandidatePathItem, offset: 1)] = filter_var(value: $requestPathArray[$i], filter: FILTER_SANITIZE_STRING);
             }
         }
@@ -39,7 +39,7 @@ class ParametersService
      * @param string $key
      * @return string|null
      */
-    public function getParameter(string $key): ?string
+    public function getParameter(string $key): null|string
     {
         if (isset($this->parameters[$key])) {
             return $this->parameters[$key];

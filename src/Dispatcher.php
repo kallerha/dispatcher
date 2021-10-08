@@ -10,7 +10,6 @@ use FluencePrototype\Broadcast\BroadcastService;
 use FluencePrototype\Http\Messages\iRequest;
 use FluencePrototype\Http\Messages\iResponse;
 use FluencePrototype\Http\Messages\MethodNotAllowedException;
-use FluencePrototype\Http\Messages\NotFoundException;
 use FluencePrototype\Http\Messages\Request\FormService;
 use FluencePrototype\Http\Messages\Request\QueryParametersService;
 use FluencePrototype\Http\Messages\Request\RestDataService;
@@ -49,7 +48,7 @@ class Dispatcher implements iDispatcher
     }
 
     /**
-     * @throws ReflectionException|InvalidDependencyException
+     * @throws ReflectionException
      */
     private function resolveDependencies(ReflectionClass $reflectionControllerClass): iGet|iPost|null
     {
@@ -61,27 +60,11 @@ class Dispatcher implements iDispatcher
                 $dependencyInjectionClassName = $dependencyInjectionParameter->getType()->getName();
                 $reflectionDependencyInjectionClass = new ReflectionClass(objectOrClass: $dependencyInjectionClassName);
 
-                switch ($dependencyInjectionClassName) {
-                    case AuthenticationService::class:
-                    case BroadcastService::class:
-                    case FormService::class:
-                    case PasswordService::class:
-                    case PathService::class:
-                    case RestDataService::class:
-                    case SessionService::class:
-                    case ValidationService::class:
-                        $dependencies[] = $reflectionDependencyInjectionClass->newInstance();
-
-                        break;
-                    case ParametersService::class:
-                        $dependencies[] = $reflectionDependencyInjectionClass->newInstance($this->request, $this->routeInformation);
-
-                        break;
-                    case QueryParametersService::class:
-                        $dependencies[] = $reflectionDependencyInjectionClass->newInstance($this->request->getQueryParameters());
-
-                        break;
-                }
+                $dependencies[] = match ($dependencyInjectionClassName) {
+                    AuthenticationService::class, BroadcastService::class, FormService::class, PasswordService::class, PathService::class, RestDataService::class, SessionService::class, ValidationService::class => $reflectionDependencyInjectionClass->newInstance(),
+                    ParametersService::class => $reflectionDependencyInjectionClass->newInstance($this->request, $this->routeInformation),
+                    QueryParametersService::class => $reflectionDependencyInjectionClass->newInstance($this->request->getQueryParameters()),
+                };
             }
 
             if ($attributes = $reflectionControllerClass->getAttributes(name: Resolver::class)) {
@@ -111,7 +94,7 @@ class Dispatcher implements iDispatcher
 
     /**
      * @inheritDoc
-     * @throws ReflectionException|InvalidDependencyException
+     * @throws ReflectionException
      */
     public function dispatch(): iResponse
     {

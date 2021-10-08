@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FluencePrototype\Dispatcher;
 
 use Exception;
+use JetBrains\PhpStorm\Pure;
 use Throwable;
 
 /**
@@ -19,7 +20,7 @@ class InvalidDependencyException extends Exception
      * @param string $message
      * @param Throwable|null $previous
      */
-    public function __construct(string $message = '', Throwable $previous = null)
+    #[Pure] public function __construct(string $message = '', Throwable $previous = null)
     {
         parent::__construct($message, 500, $previous);
     }
