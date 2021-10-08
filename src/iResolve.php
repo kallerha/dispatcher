@@ -14,8 +14,8 @@ interface iResolve
 {
 
     /**
-     * @return bool
+     * @return iResponse|null
      */
-    public function resolve(): ?iResponse;
+    public function resolve(): null|iResponse;
 
 }
