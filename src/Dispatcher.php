@@ -27,6 +27,7 @@ use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
+use UnhandledMatchError;
 
 /**
  * Class Dispatcher
@@ -50,35 +51,37 @@ class Dispatcher implements iDispatcher
     /**
      * @throws ReflectionException
      */
-    private function resolveDependencies(ReflectionClass $reflectionControllerClass): iGet|iPost|null
+    private function resolveDependencies(ReflectionClass $reflectionControllerClass): iGet|iPost
     {
-        if ($controllerConstructor = $reflectionControllerClass->getConstructor()) {
-            $dependencyInjectionParameters = $controllerConstructor->getParameters();
-            $dependencies = [];
+        $dependencies = [];
 
-            foreach ($dependencyInjectionParameters as $dependencyInjectionParameter) {
-                $dependencyInjectionClassName = $dependencyInjectionParameter->getType()->getName();
-                $reflectionDependencyInjectionClass = new ReflectionClass(objectOrClass: $dependencyInjectionClassName);
+        try {
+            if ($controllerConstructor = $reflectionControllerClass->getConstructor()) {
+                $dependencyInjectionParameters = $controllerConstructor->getParameters();
 
-                $dependencies[] = match ($dependencyInjectionClassName) {
-                    AuthenticationService::class, BroadcastService::class, FormService::class, PasswordService::class, PathService::class, RestDataService::class, SessionService::class, ValidationService::class => $reflectionDependencyInjectionClass->newInstance(),
-                    ParametersService::class => $reflectionDependencyInjectionClass->newInstance($this->request, $this->routeInformation),
-                    QueryParametersService::class => $reflectionDependencyInjectionClass->newInstance($this->request->getQueryParameters()),
-                };
-            }
+                foreach ($dependencyInjectionParameters as $dependencyInjectionParameter) {
+                    $dependencyInjectionClassName = $dependencyInjectionParameter->getType()->getName();
+                    $reflectionDependencyInjectionClass = new ReflectionClass(objectOrClass: $dependencyInjectionClassName);
 
-            if ($attributes = $reflectionControllerClass->getAttributes(name: Resolver::class)) {
-                foreach ($attributes as $attribute) {
-                    /** @var Resolver $resolver */
-                    $resolver = $attribute->newInstance();
-                    $dependencies = array_merge($dependencies, $resolver->getResolver()->getDependencies());
+                    $dependencies[] = match ($dependencyInjectionClassName) {
+                        AuthenticationService::class, BroadcastService::class, FormService::class, PasswordService::class, PathService::class, RestDataService::class, SessionService::class, ValidationService::class => $reflectionDependencyInjectionClass->newInstance(),
+                        ParametersService::class => $reflectionDependencyInjectionClass->newInstance($this->request, $this->routeInformation),
+                        QueryParametersService::class => $reflectionDependencyInjectionClass->newInstance($this->request->getQueryParameters()),
+                    };
                 }
             }
-
-            return $reflectionControllerClass->newInstanceArgs(args: $dependencies);
+        } catch (UnhandledMatchError) {
         }
 
-        return null;
+        if ($attributes = $reflectionControllerClass->getAttributes(name: Resolver::class)) {
+            foreach ($attributes as $attribute) {
+                /** @var Resolver $resolver */
+                $resolver = $attribute->newInstance();
+                $dependencies = array_merge($dependencies, $resolver->getResolver()->getDependencies());
+            }
+        }
+
+        return $reflectionControllerClass->newInstanceArgs(args: $dependencies);
     }
 
 
