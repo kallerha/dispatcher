@@ -13,11 +13,11 @@
   ],
   "require": {
     "php": ">=8.0.0",
-    "fluence-prototype/broadcast": "^1.0",
-    "fluence-prototype/http": "^1.0",
-    "fluence-prototype/router": "^1.0",
-    "fluence-prototype/auth": "^1.0",
-    "fluence-prototype/security": "^1.0"
+    "fluence-prototype/auth": "^2.0",
+    "fluence-prototype/broadcast": "^2.0",
+    "fluence-prototype/http": "^2.0",
+    "fluence-prototype/router": "^2.0",
+    "fluence-prototype/security": "^2.0"
   },
   "autoload": {
     "psr-4": {
