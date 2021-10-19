@@ -19,6 +19,7 @@ use FluencePrototype\Http\Methods\iPatch;
 use FluencePrototype\Http\Methods\iPost;
 use FluencePrototype\Http\Methods\iPut;
 use FluencePrototype\Http\PathService;
+use FluencePrototype\Http\TimeLimit;
 use FluencePrototype\Router\iRouteInformation;
 use FluencePrototype\Security\PasswordService;
 use FluencePrototype\Session\SessionService;
@@ -106,6 +107,11 @@ class Dispatcher implements iDispatcher
         if ($attributes = $reflectionControllerClass->getAttributes(name: AcceptRoles::class)) {
             $acceptRolesAttribute = array_pop(array: $attributes);
             $acceptRolesAttribute->newInstance();
+        }
+
+        if ($attributes = $reflectionControllerClass->getAttributes(name: TimeLimit::class)) {
+            $timeLimitAttribute = array_pop(array: $attributes);
+            $timeLimitAttribute->newInstance();
         }
 
         if (!$controller = $this->resolveDependencies(reflectionControllerClass: $reflectionControllerClass)) {
