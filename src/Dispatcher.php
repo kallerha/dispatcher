@@ -92,6 +92,10 @@ class Dispatcher implements iDispatcher
     private function resolveAttributes(array $attributes): void
     {
         foreach ($attributes as $attribute) {
+            if (dirname(path: $attribute->getName(), levels: 2) === 'JetBrains') {
+                continue;
+            }
+
             $attribute->newInstance();
         }
     }
