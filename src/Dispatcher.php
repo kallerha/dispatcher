@@ -85,7 +85,6 @@ class Dispatcher implements iDispatcher
         return $reflectionControllerClass->newInstanceArgs(args: $dependencies);
     }
 
-
     /**
      * @param ReflectionAttribute[] $attributes
      */
