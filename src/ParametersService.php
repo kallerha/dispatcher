@@ -48,4 +48,12 @@ class ParametersService
         return null;
     }
 
+    /**
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return empty($this->parameters);
+    }
+
 }
