@@ -64,11 +64,21 @@ class Dispatcher implements iDispatcher
                     $dependencyInjectionClassName = $dependencyInjectionParameter->getType()->getName();
                     $reflectionDependencyInjectionClass = new ReflectionClass(objectOrClass: $dependencyInjectionClassName);
 
-                    $dependencies[] = match ($dependencyInjectionClassName) {
-                        AuthenticationService::class, BroadcastService::class, FormService::class, PasswordService::class, PathService::class, RestDataService::class, SessionService::class, ValidationService::class => $reflectionDependencyInjectionClass->newInstance(),
-                        ParametersService::class => $reflectionDependencyInjectionClass->newInstance($this->request, $this->routeInformation),
-                        QueryParametersService::class => $reflectionDependencyInjectionClass->newInstance($this->request->getQueryParameters()),
-                    };
+                    if ($dependencyInjectionClassName === ParametersService::class) {
+                        $dependencies[] = $reflectionDependencyInjectionClass->newInstance($this->request, $this->routeInformation);
+
+                        continue;
+                    }
+
+                    if ($dependencyInjectionClassName === QueryParametersService::class) {
+                        $dependencies[] = $reflectionDependencyInjectionClass->newInstance($this->request->getQueryParameters());
+
+                        continue;
+                    }
+
+                    if ($reflectionDependencyInjectionClass->isInstantiable()) {
+                        $dependencies[] = $reflectionDependencyInjectionClass->newInstance();
+                    }
                 }
             }
         } catch (UnhandledMatchError) {
