@@ -52,7 +52,7 @@ class Dispatcher implements iDispatcher
     /**
      * @throws ReflectionException
      */
-    private function resolveDependencies(ReflectionClass $reflectionControllerClass): iGet|iPost|iPut|iDelete
+    private function resolveDependencies(ReflectionClass $reflectionControllerClass): iGet|iPost|iPut|iDelete|iPatch
     {
         $dependencies = [];
 
