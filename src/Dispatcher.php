@@ -76,7 +76,8 @@ class Dispatcher implements iDispatcher
                         continue;
                     }
 
-                    if ($reflectionDependencyInjectionClass->isInstantiable()) {
+                    if (empty($reflectionDependencyInjectionClass->getConstructor()->getParameters()) &&
+                        $reflectionDependencyInjectionClass->isInstantiable()) {
                         $dependencies[] = $reflectionDependencyInjectionClass->newInstance();
                     }
                 }
