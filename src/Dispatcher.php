@@ -16,7 +16,6 @@ use FluencePrototype\Http\Methods\iPost;
 use FluencePrototype\Http\Methods\iPut;
 use FluencePrototype\Http\TimeLimit;
 use FluencePrototype\Router\iRouteInformation;
-use Psalm\Node\Expr\VirtualAssignRef;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
@@ -95,8 +94,10 @@ class Dispatcher implements iDispatcher
 
         $finalDependencies = [];
 
-        foreach ($reflectionControllerClass->getConstructor()->getParameters() as $parameter) {
-            $finalDependencies[$parameter->getName()] = $dependencies[$parameter->getName()];
+        if ($constructor = $reflectionControllerClass->getConstructor()) {
+            foreach ($constructor->getParameters() as $parameter) {
+                $finalDependencies[$parameter->getName()] = $dependencies[$parameter->getName()];
+            }
         }
 
         return $reflectionControllerClass->newInstanceArgs(args: array_values($finalDependencies));
