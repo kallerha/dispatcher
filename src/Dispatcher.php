@@ -5,25 +5,18 @@ declare(strict_types=1);
 namespace FluencePrototype\Dispatcher;
 
 use FluencePrototype\Auth\AcceptRoles;
-use FluencePrototype\Auth\AuthenticationService;
-use FluencePrototype\Broadcast\BroadcastService;
 use FluencePrototype\Http\Messages\iRequest;
 use FluencePrototype\Http\Messages\iResponse;
 use FluencePrototype\Http\Messages\MethodNotAllowedException;
-use FluencePrototype\Http\Messages\Request\FormService;
 use FluencePrototype\Http\Messages\Request\QueryParametersService;
-use FluencePrototype\Http\Messages\Request\RestDataService;
 use FluencePrototype\Http\Methods\iDelete;
 use FluencePrototype\Http\Methods\iGet;
 use FluencePrototype\Http\Methods\iPatch;
 use FluencePrototype\Http\Methods\iPost;
 use FluencePrototype\Http\Methods\iPut;
-use FluencePrototype\Http\PathService;
 use FluencePrototype\Http\TimeLimit;
 use FluencePrototype\Router\iRouteInformation;
-use FluencePrototype\Security\PasswordService;
-use FluencePrototype\Session\SessionService;
-use FluencePrototype\Validation\ValidationService;
+use Psalm\Node\Expr\VirtualAssignRef;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
@@ -55,6 +48,16 @@ class Dispatcher implements iDispatcher
     private function resolveDependencies(ReflectionClass $reflectionControllerClass): iGet|iPost|iPut|iDelete|iPatch
     {
         $dependencies = [];
+        $dependencyNames = [];
+
+        if ($attributes = $reflectionControllerClass->getAttributes(name: Resolver::class)) {
+            foreach ($attributes as $attribute) {
+                /** @var Resolver $resolver */
+                $resolver = $attribute->newInstance();
+                $dependencyNames = array_merge($dependencyNames, array_keys($resolver->getResolver()->getDependencies()));
+                $dependencies = array_merge($dependencies, $resolver->getResolver()->getDependencies());
+            }
+        }
 
         try {
             if ($controllerConstructor = $reflectionControllerClass->getConstructor()) {
@@ -62,39 +65,41 @@ class Dispatcher implements iDispatcher
 
                 foreach ($dependencyInjectionParameters as $dependencyInjectionParameter) {
                     $dependencyInjectionClassName = $dependencyInjectionParameter->getType()->getName();
+                    $parameterName = $dependencyInjectionParameter->getName();
+
+                    if (in_array($dependencyInjectionParameter->getName(), $dependencyNames, true)) {
+                        continue;
+                    }
+
                     $reflectionDependencyInjectionClass = new ReflectionClass(objectOrClass: $dependencyInjectionClassName);
 
                     if ($dependencyInjectionClassName === ParametersService::class) {
-                        $dependencies[] = $reflectionDependencyInjectionClass->newInstance($this->request, $this->routeInformation);
+                        $dependencies[$parameterName] = $reflectionDependencyInjectionClass->newInstance($this->request, $this->routeInformation);
 
                         continue;
                     }
 
                     if ($dependencyInjectionClassName === QueryParametersService::class) {
-                        $dependencies[] = $reflectionDependencyInjectionClass->newInstance($this->request->getQueryParameters());
+                        $dependencies[$parameterName] = $reflectionDependencyInjectionClass->newInstance($this->request->getQueryParameters());
 
                         continue;
                     }
 
-                    if ($reflectionDependencyInjectionClass->getConstructor() &&
-                        empty($reflectionDependencyInjectionClass->getConstructor()->getParameters()) &&
-                        $reflectionDependencyInjectionClass->isInstantiable()) {
-                        $dependencies[] = $reflectionDependencyInjectionClass->newInstance();
+                    if ($reflectionDependencyInjectionClass->isInstantiable()) {
+                        $dependencies[$parameterName] = $reflectionDependencyInjectionClass->newInstance();
                     }
                 }
             }
         } catch (UnhandledMatchError) {
         }
 
-        if ($attributes = $reflectionControllerClass->getAttributes(name: Resolver::class)) {
-            foreach ($attributes as $attribute) {
-                /** @var Resolver $resolver */
-                $resolver = $attribute->newInstance();
-                $dependencies = array_merge($dependencies, $resolver->getResolver()->getDependencies());
-            }
+        $finalDependencies = [];
+
+        foreach ($reflectionControllerClass->getConstructor()->getParameters() as $parameter) {
+            $finalDependencies[$parameter->getName()] = $dependencies[$parameter->getName()];
         }
 
-        return $reflectionControllerClass->newInstanceArgs(args: $dependencies);
+        return $reflectionControllerClass->newInstanceArgs(args: array_values($finalDependencies));
     }
 
     /**
